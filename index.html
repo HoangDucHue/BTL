@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quản lý sinh viên</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .form-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        input, button {
+            width: 300px;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Quản lý thông tin sinh viên</h1>
+        
+        <!-- Nút để hiển thị form tương ứng -->
+        <button onclick="hienThiForm('formThem')">Thêm Sinh Viên</button>
+        <button onclick="hienThiForm('formCapNhat')">Cập Nhật Sinh Viên</button>
+        <button onclick="hienThiForm('formXoa')">Xóa Sinh Viên</button>
+        <button onclick="hienThiForm('formTimKiem')">Tìm Kiếm Sinh Viên</button>
+        
+        <!-- Form thêm sinh viên, ẩn ban đầu -->
+        <div id="formThem" class="hidden">
+            <input type="text" id="mssv" placeholder="Mã Số Sinh Viên">
+            <input type="text" id="tenSinhVien" placeholder="Tên Sinh Viên">
+            <input type="text" id="khoa" placeholder="Khoa">
+            <input type="text" id="tenLop" placeholder="Tên Lớp">
+            <button onclick="themSinhVien()">Thêm Sinh Viên</button>
+        </div>
+        
+        <!-- Form cập nhật sinh viên, ẩn ban đầu -->
+        <div id="formCapNhat" class="hidden">
+            <input type="text" id="updateMssv" placeholder="Mã Số Sinh Viên cần cập nhật">
+            <input type="text" id="updateTenSinhVien" placeholder="Tên Sinh Viên mới">
+            <input type="text" id="updateKhoa" placeholder="Khoa mới">
+            <input type="text" id="updateTenLop" placeholder="Tên Lớp mới">
+            <button onclick="capNhatSinhVien()">Cập Nhật Sinh Viên</button>
+        </div>
+
+        <!-- Form xóa sinh viên, ẩn ban đầu -->
+        <div id="formXoa" class="hidden">
+            <input type="text" id="deleteMssv" placeholder="Mã Số Sinh Viên cần xóa">
+            <button onclick="xoaSinhVien()">Xóa Sinh Viên</button>
+        </div>
+
+        <!-- Form tìm kiếm sinh viên, ẩn ban đầu -->
+        <div id="formTimKiem" class="hidden">
+            <input type="text" id="searchMssv" placeholder="Mã Số Sinh Viên cần tìm">
+            <button onclick="timKiemSinhVien()">Tìm Kiếm</button>
+        </div>
+
+    </div>
+
+    <script>
+        // JavaScript cho thao tác thêm sinh viên
+        function themSinhVien() {
+            var mssv = document.getElementById('mssv').value;
+            var tenSinhVien = document.getElementById('tenSinhVien').value;
+            var khoa = document.getElementById('khoa').value;
+            var tenLop = document.getElementById('tenLop').value;
+
+            var sinhVien = { mssv: mssv, tenSinhVien: tenSinhVien, khoa: khoa, tenLop: tenLop };
+
+            fetch('/api/sinhvien', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(sinhVien),
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Thêm sinh viên thành công');
+                // Làm mới lại trang hoặc cập nhật danh sách sinh viên tại đây
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+
+        // Cập nhật sinh viên
+        function capNhatSinhVien() {
+            var mssv = document.getElementById('updateMssv').value;
+            var tenSinhVien = document.getElementById('updateTenSinhVien').value;
+            var khoa = document.getElementById('updateKhoa').value;
+            var tenLop = document.getElementById('updateTenLop').value;
+
+            var sinhVien = { tenSinhVien: tenSinhVien, khoa: khoa, tenLop: tenLop };
+
+            fetch(`/api/sinhvien/${mssv}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(sinhVien),
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Cập nhật sinh viên thành công');
+                // Làm mới lại trang hoặc cập nhật danh sách sinh viên tại đây
+            })
+            .catch((error) => {
+                console.error('Error:', error); 
+            });
+        }
+
+        // Xóa sinh viên
+        function xoaSinhVien() {
+            var mssv = document.getElementById('deleteMssv').value;
+
+            fetch(`/api/sinhvien/${mssv}`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Xóa sinh viên thành công');
+                    // Làm mới lại trang hoặc cập nhật danh sách sinh viên tại đây
+                } else {
+                    throw new Error('Lỗi khi xóa sinh viên');
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert(error.message);
+            });
+        }
+
+        // Tìm kiếm sinh viên
+        function timKiemSinhVien() {
+            var mssv = document.getElementById('searchMssv').value;
+
+            fetch(`/api/sinhvien/${mssv}`, {
+                method: 'GET'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data) {
+                    // Hiển thị thông tin sinh viên tìm thấy
+                    alert(`Mã Số Sinh Viên: ${data.mssv}\nTên Sinh Viên: ${data.tenSinhVien}\nKhoa: ${data.khoa}\nTên Lớp: ${data.tenLop}`);
+                } else {
+                    alert('Không tìm thấy sinh viên');
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error); 
+                alert('Lỗi khi tìm kiếm sinh viên');
+            });
+        }
+
+
+        function hienThiForm(formId) {
+            // Ẩn tất cả các form
+            document.getElementById('formThem').style.display = 'none';
+            document.getElementById('formCapNhat').style.display = 'none';
+            document.getElementById('formXoa').style.display = 'none';
+            document.getElementById('formTimKiem').style.display = 'none';
+            // Hiển thị form được chọn
+            document.getElementById(formId).style.display= 'block';
+        }
+
+    </script>
+</body>
+</html>
+
